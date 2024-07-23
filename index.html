@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+4-----------------
+
+-- Enable DBMS_OUTPUT in SQL*Plus or SQL Developer
+SET SERVEROUTPUT ON;
+
+-- Create the CUSTOMER table
+CREATE TABLE CUSTOMER (
+    ID INT PRIMARY KEY,
+    NAME VARCHAR(10),
+    AGE INT,
+    ADDRESS VARCHAR(10),
+    SALARY NUMBER(10, 2)
+);
+
+-- Insert data into the CUSTOMER table
+INSERT INTO CUSTOMER VALUES (1, 'Ramesh', 25, 'Mysore', 200000);
+INSERT INTO CUSTOMER VALUES (2, 'Komal', 35, 'Bangalore', 800000);
+INSERT INTO CUSTOMER VALUES (3, 'Mala', 45, 'Mangalore', 56000);
+
+-- Create or replace the trigger
+CREATE OR REPLACE TRIGGER sal_difference_trigger
+BEFORE INSERT OR UPDATE OR DELETE ON CUSTOMER
+FOR EACH ROW
+DECLARE
+    old_salary NUMBER;
+    new_salary NUMBER;
+BEGIN
+    IF INSERTING OR UPDATING THEN
+        old_salary := NVL(:OLD.SALARY, 0);
+        new_salary := NVL(:NEW.SALARY, 0);
+        DBMS_OUTPUT.PUT_LINE('Salary difference: ' || (new_salary - old_salary));
+    ELSIF DELETING THEN
+        old_salary := NVL(:OLD.SALARY, 0);
+        DBMS_OUTPUT.PUT_LINE('Salary before deletion: ' || old_salary);
+    END IF;
+END;
+/
+------------------
+   5 ----------
+    -- Create the table
+CREATE TABLE EMPLOYEE5
+(
+    E_ID INT PRIMARY KEY,
+    E_NAME VARCHAR (15),
+    AGE INT,
+    SALARY DECIMAL (10, 2)
+);
+
+-- Insert data into the table
+INSERT INTO EMPLOYEE5 VALUES (1, 'Ramesh', 32, 2000.00);
+INSERT INTO EMPLOYEE5 VALUES (2, 'Khilan', 25, 1500.00);
+INSERT INTO EMPLOYEE5 VALUES (3, 'Kaushik', 23, 2000.00);
+INSERT INTO EMPLOYEE5 VALUES (4, 'Chaitali', 25, 6500.00);
+
+-- Enable DBMS_OUTPUT in SQL*Plus or SQL Developer
+SET SERVEROUTPUT ON;
+
+-- PL/SQL Block
+DECLARE
+    E_id Employee5.E_id%TYPE;
+    E_name Employee5.E_name%TYPE;
+    Age Employee5.Age%TYPE;
+    Salary Employee5.Salary%TYPE;
+
+    -- Declare cursor
+    CURSOR employee_cursor IS
+        SELECT E_id, E_name, Age, Salary
+        FROM Employee5;
+BEGIN
+    -- Open the cursor
+    OPEN employee_cursor;
+
+    -- Fetch data from cursor
+    LOOP
+        FETCH employee_cursor INTO E_id, E_name, Age, Salary;
+        
+        EXIT WHEN employee_cursor%NOTFOUND;
+
+        -- Output or use the fetched values
+        DBMS_OUTPUT.PUT_LINE('Employee ID: ' || E_id || ', Name: ' || E_name || ', Age: ' || Age || ', Salary: ' || Salary);
+    END LOOP;
+
+    -- Close the cursor
+    CLOSE employee_cursor;
+END;
+/
+
+----------
+6
+------------
+-- Create the tables
+CREATE TABLE O_RollCall (
+    roll INT,
+    name VARCHAR(10)
+);
+
+CREATE TABLE N_RollCall (
+    roll INT,
+    name VARCHAR(10)
+);
+
+-- Insert data into O_RollCall
+INSERT INTO O_RollCall VALUES (1, 'bc');
+INSERT INTO O_RollCall VALUES (3, 'bcd');
+INSERT INTO O_RollCall VALUES (4, 'd');
+INSERT INTO O_RollCall VALUES (5, 'bch');
+
+-- Insert data into N_RollCall
+INSERT INTO N_RollCall VALUES (1, 'bc');
+INSERT INTO N_RollCall VALUES (2, 'b');
+INSERT INTO N_RollCall VALUES (5, 'bch');
+
+-- Enable DBMS_OUTPUT in SQL*Plus or SQL Developer
+SET SERVEROUTPUT ON;
+
+-- PL/SQL Block
+DECLARE
+    v_count NUMBER;
+    CURSOR c_new_rollcall IS
+        SELECT roll, name
+        FROM N_RollCall;
+BEGIN
+    FOR new_rec IN c_new_rollcall LOOP
+        -- Check if the record already exists in O_RollCall
+        SELECT COUNT(*)
+        INTO v_count
+        FROM O_RollCall
+        WHERE roll = new_rec.roll;
+
+        -- If record doesn't exist, insert it
+        IF v_count = 0 THEN
+            INSERT INTO O_RollCall (roll, name)
+            VALUES (new_rec.roll, new_rec.name);
+            DBMS_OUTPUT.PUT_LINE('Record inserted: ' || new_rec.roll);
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('Record skipped: ' || new_rec.roll);
+        END IF;
+    END LOOP;
+    COMMIT;
+END;
+/
+
+-- Verify the contents of the tables
+SELECT * FROM N_RollCall;
+SELECT * FROM O_RollCall;
+
+
+
+
+</body>
+</html>
